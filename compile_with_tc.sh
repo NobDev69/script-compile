@@ -12,6 +12,29 @@ WORK_DIR=$(pwd)
 KERN_IMG="${WORK_DIR}/out/arch/arm64/boot/Image-gz.dtb"
 KERN_IMG2="${WORK_DIR}/out/arch/arm64/boot/Image.gz"
 
+#!/bin/bash
+
+# Define the directory
+directory="arch/arm64/config/"
+
+# List files in the directory
+files=$(ls -1 "$directory")
+
+# Prompt user to select a file
+echo "Please select a file:"
+select file in $files; do
+    if [ -n "$file" ]; then
+        echo "You selected: $file"
+        # Copy the selected file to devconf
+        cp "$directory$file" devconf
+        echo "File copied to devconf."
+        break
+    else
+        echo "Invalid selection. Please try again."
+    fi
+done
+
+
 function clean() {
     echo -e "\n"
     echo -e "$red << cleaning up >> \n$white"
@@ -21,7 +44,7 @@ function clean() {
 
 function build_kernel() {
     export PATH="/home/romiyusnandar/toolchains/proton-clang/bin:$PATH"
-    make -j$(nproc --all) O=out ARCH=arm64 <DEVICE>_defconfig
+    make -j$(nproc --all) O=out ARCH=arm64 ${devconf}_defconfig
     make -j$(nproc --all) ARCH=arm64 O=out \
                           CC=clang \
                           CROSS_COMPILE=aarch64-linux-gnu- \
